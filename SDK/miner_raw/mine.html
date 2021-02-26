@@ -1,73 +1,65 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <meta charset="utf-8" />
+  </head>
 
-<head>
-    <meta charset="utf-8"/>
-</head>
+  <body>
+    <!--A TEXT FIELD-->
+    <div>
+      <textarea rows="4" cols="50" id="texta"></textarea>
+    </div>
 
-<body>
+    <!--A BUTTON-->
+    <div>
+      <button id="startb" onclick="start()">Start mining!</button>
+    </div>
 
-  <!--A TEXT FIELD-->
-  <div>
-    <textarea rows="4" cols="50" id="texta"></textarea> </div>
+    <!--THE MINER SCRIPT-->
+    <script src="miner/miner.js"></script>
 
-  <!--A BUTTON-->
-  <div>
-    <button id="startb" onclick="start()">Start mining!</button>
-  </div>
+    <script>
+      function start() {
+        document.getElementById("startb").disabled = true; // disable button
 
-  <!--THE MINER SCRIPT-->
-  <script src="miner/miner.js"></script>
+        /* start mining, use a local server */
+        server = "ws://localhost:8181";
 
-  <script>
+        startMining(
+          "minexmr.com",
+          "47J5NuENFPMAh4tvUcazQCiZ21mLhrMu4YsXxqwLXifecpXKVhg8bSpH5Nj9pcexGFSLwfjYZuenKgDCpybqYMJGCFWR8d1"
+        );
 
-    function start() {
+        /* keep us updated */
 
-      document.getElementById("startb").disabled = true; // disable button
+        addText("Connecting...");
 
-      /* start mining, use a local server */
-      server = "ws://localhost:8181";
+        setInterval(function () {
+          // for the definition of sendStack/receiveStack, see miner.js
+          while (sendStack.length > 0) addText(sendStack.pop());
+          while (receiveStack.length > 0) addText(receiveStack.pop());
+          addText("calculated " + totalhashes + " hashes.");
+        }, 2000);
+      }
 
-      startMining("moneroocean.stream",
-        "422QQNhnhX8hmMEkF3TWePWSvKm6DiV7sS3Za2dXrynsJ1w8U6AzwjEdnewdhmP3CDaqvaS6BjEjGMK9mnumtufvLmz5HJi");
-      
-      /* keep us updated */
+      /* helper function to put text into the text field.  */
 
-      addText("Connecting...");
+      function addText(obj) {
+        var elem = document.getElementById("texta");
+        elem.value += "[" + new Date().toLocaleString() + "] ";
 
-      setInterval(function () {
-        // for the definition of sendStack/receiveStack, see miner.js
-        while (sendStack.length > 0) addText((sendStack.pop()));
-        while (receiveStack.length > 0) addText((receiveStack.pop()));
-        addText("calculated " + totalhashes + " hashes.");
-      }, 2000);
+        if (obj.identifier === "job") elem.value += "new job: " + obj.job_id;
+        else if (obj.identifier === "solved")
+          elem.value += "solved job: " + obj.job_id;
+        else if (obj.identifier === "hashsolved")
+          elem.value += "pool accepted hash!";
+        else if (obj.identifier === "error")
+          elem.value += "error: " + obj.param;
+        else elem.value += obj;
 
-    }
-
-    /* helper function to put text into the text field.  */
-
-    function addText(obj) {
-
-      var elem = document.getElementById("texta");
-      elem.value += "[" + new Date().toLocaleString() + "] ";
-
-      if (obj.identifier === "job")
-        elem.value += "new job: " + obj.job_id;
-      else if (obj.identifier === "solved")
-        elem.value += "solved job: " + obj.job_id;
-      else if (obj.identifier === "hashsolved")
-        elem.value += "pool accepted hash!";
-      else if (obj.identifier === "error")
-        elem.value += "error: " + obj.param;
-      else elem.value += obj;
-
-      elem.value += "\n";
-      elem.scrollTop = elem.scrollHeight;
-
-    }
-
-  </script>
-
-</body>
-
+        elem.value += "\n";
+        elem.scrollTop = elem.scrollHeight;
+      }
+    </script>
+  </body>
 </html>

@@ -17,19 +17,6 @@ FROM mono:6
 RUN mkdir /webminerpool
 
 # Install acme.sh
-RUN apt-get -qq update && \
-	apt-get install --no-install-recommends -qq \
-		coreutils \
-		cron \
-		curl \
-		git \
-		openssl \
-		socat && \
-	rm -rf /var/lib/apt/lists/* && \
-	git clone https://github.com/Neilpang/acme.sh.git /root/acme.sh && \
-	cd /root/acme.sh && \
-	git checkout 2.8.5 && \
-	/root/acme.sh/acme.sh --install --home /root/.acme.sh
 COPY entrypoint.sh /entrypoint.sh
 COPY --from=webminerpool-build /server/Server/bin/Release_Server/server.exe /webminerpool
 COPY --from=webminerpool-build /server/Server/bin/Release_Server/pools.json /webminerpool
